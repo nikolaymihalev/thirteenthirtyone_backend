@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../ThirteenThirtyOne.Application/ThirteenThirtyOne.Application.csproj" />
+    <ProjectReference Include="../ThirteenThirtyOne.Infrastructure/ThirteenThirtyOne.Infrastructure.csproj" />
+    <ProjectReference Include="../ThirteenThirtyOne.Protocol/ThirteenThirtyOne.Protocol.csproj" />
+  </ItemGroup>
+</Project>

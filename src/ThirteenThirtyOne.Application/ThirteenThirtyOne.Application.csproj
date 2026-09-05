@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../ThirteenThirtyOne.Game.Domain/ThirteenThirtyOne.Game.Domain.csproj" />
+    <ProjectReference Include="../ThirteenThirtyOne.Game.Engine/ThirteenThirtyOne.Game.Engine.csproj" />
+  </ItemGroup>
+</Project>
