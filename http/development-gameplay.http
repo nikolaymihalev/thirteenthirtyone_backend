@@ -1,0 +1,51 @@
+@baseUrl = http://localhost:5080
+@gameId = manual-test-001
+@seedHex = 0000000000000000000000000000000000000000000000000000000000000000
+# Replace these variables from the latest GET/operation response before each request.
+@decisionId = REPLACE_CURRENT_DECISION_ID
+@playerId = REPLACE_CURRENT_DECISION_OWNER
+@targetPlayerId = REPLACE_ALLOWED_TARGET
+@decisionKind = PlayerAction
+
+### Create (Development only)
+POST {{baseUrl}}/dev/games
+Content-Type: application/json
+
+{
+  "gameId": "{{gameId}}",
+  "players": ["player-a", "player-b"],
+  "seedHex": "{{seedHex}}"
+}
+
+### Inspect current decision before choosing the next operation
+GET {{baseUrl}}/dev/games/{{gameId}}
+
+### Draw (copy current action decision ID and owner)
+POST {{baseUrl}}/dev/games/{{gameId}}/decisions
+Content-Type: application/json
+
+{ "decisionId": {{decisionId}}, "playerId": "{{playerId}}", "action": "Draw" }
+
+### Stop (alternative to Draw, not a fixed next step)
+POST {{baseUrl}}/dev/games/{{gameId}}/decisions
+Content-Type: application/json
+
+{ "decisionId": {{decisionId}}, "playerId": "{{playerId}}", "action": "Stop" }
+
+### Select target only at WaitTarget; update all variables from current decision
+POST {{baseUrl}}/dev/games/{{gameId}}/decisions
+Content-Type: application/json
+
+{ "decisionId": {{decisionId}}, "playerId": "{{playerId}}", "action": "SelectTarget", "targetPlayerId": "{{targetPlayerId}}" }
+
+### Simulate timeout; set decisionKind to PlayerAction or EffectTarget as currently pending
+POST {{baseUrl}}/dev/games/{{gameId}}/timeouts
+Content-Type: application/json
+
+{ "decisionId": {{decisionId}}, "decisionKind": "{{decisionKind}}" }
+
+### Advance only at SafePostResolution
+POST {{baseUrl}}/dev/games/{{gameId}}/continue
+
+### Reset / cleanup
+DELETE {{baseUrl}}/dev/games/{{gameId}}

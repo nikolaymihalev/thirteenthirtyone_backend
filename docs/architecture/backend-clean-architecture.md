@@ -8,8 +8,8 @@ Unity is the future mobile client. PostgreSQL is the intended durable source of
 truth; Redis-compatible storage is intended only for transient coordination.
 None of those integrations is implemented by this foundation.
 
-No upstream project documents were present at bootstrap. Future implementation
-must consult these in order and report conflicts before making behavior decisions:
+The locked documents in `docs/source-of-truth` must be consulted in this order;
+report conflicts before making behavior decisions:
 
 1. Official 13/31 Rules (tabletop source of truth).
 2. Digital Game Rules Specification v1.1 (approved/locked).
@@ -38,23 +38,25 @@ enforce direct project edges and compiled dependencies separately. No cycles exi
 
 ## Responsibilities
 
-**Game.Domain** owns the eventual business vocabulary: entities, aggregates,
+**Game.Domain** owns the gameplay vocabulary: snapshots,
 immutable value objects, typed IDs, invariants, and domain events. It has no
 database, EF attributes, HTTP, ASP.NET Core, logging framework, serialization
 behavior, transport DTOs, network, cloud, or container composition concerns.
 
-**Game.Engine** will implement deterministic rule transitions using Domain.
+**Game.Engine** implements deterministic rule transitions using Domain.
 Conceptually: state + deterministic input -> new state + domain events +
 deterministic boundary metadata. It must not read a hidden wall clock, network,
-filesystem, or static/global Random. Time and randomness must eventually enter
-through explicit deterministic inputs. No engine API or algorithm exists yet.
+filesystem, or static/global Random. Timeouts and seeded randomness enter through
+explicit inputs. See `game-engine.md` for the implemented API and compatibility contract.
 
-**Application** will coordinate use cases and define ports for external
+**Application** coordinates use cases and defines ports for external
 capabilities. Unlike Engine, it coordinates workflows and effects rather than
 deciding game rules. It does not implement SQL, HTTP endpoints, WebSockets,
-or duplicate domain invariants. Command/query frameworks are not required.
+or duplicate domain invariants. DevelopmentGameplay calls the engine, maps immutable
+safe projections and persists accepted transitions through IGameSessionStore. A failed
+expected-hash replacement returns conflict without retrying the gameplay input.
 
-**Infrastructure** will implement aggregate-specific and other application ports.
+**Infrastructure** implements application ports, currently InMemoryGameSessionStore.
 It may depend on Application and Domain. Adapters own external-system details,
 not gameplay or player-visible policy. Because inner layers define the contracts
 and never reference their implementations, adapters can be replaced without
@@ -67,9 +69,10 @@ business behavior, and cannot reference inner domain/application types.
 
 **GameBackend** is the ASP.NET Core composition root. It owns startup,
 configuration, dependency registration, HTTP concerns, and host logging.
-The standard DI container and health checks are its only current composition.
-Adapter/use-case registrations should be added here when real implementations
-exist. There are no empty AddApplication/AddInfrastructure extension methods.
+The standard DI container registers the development service and singleton in-memory
+store only in Development. The host maps the whole `/dev/games` group and Swagger
+only in that environment. It references Application projections, never engine/domain
+types. There are no empty AddApplication/AddInfrastructure extension methods.
 Identity, Matchmaking, Match Runtime, Presence, Deadlines, Forfeit, Results, and
 Outbox remain planned logical modules. No empty module folders or fake services
 are necessary to represent them.
@@ -118,7 +121,7 @@ checks; it is small and requires no production instrumentation. Assembly referen
 checks supplement it. Evaluated MSBuild item checks enforce the exact graph in
 both Debug and Release, including references unused by code and references from
 imported props/targets at evaluation time. This closes the common empty-assembly
-test gap. Each library has one internal assembly marker for type inspection.
+test gap. The reserved Protocol boundary retains an internal assembly marker.
 
 Domain, Engine, Application, and Protocol currently allow no package references,
 explicit assembly references, or framework references beyond Microsoft.NETCore.App.
@@ -129,12 +132,13 @@ Test-only libraries and host test infrastructure never enter production projects
 
 These checks do not prove determinism or detect every indirect BCL API call,
 reflection-based dependency, custom build-time reference injection, or semantic
-violation. Future engine behavior tests and code review must enforce explicit time,
-randomness, IO, and aggregate invariants. There is no gameplay to test yet.
+violation. Engine behavior tests and code review enforce explicit inputs and invariants.
+Additional compiled checks prohibit clock, hidden randomness, IO and threading in the core.
 
 Integration tests boot the actual host through WebApplicationFactory in Development
-and Production, exercise liveness, verify environment configuration, and check that
-the root has no endpoint. Liveness proves the host responds, not database readiness.
+and non-Development environments, exercise liveness, deterministic complete-game HTTP
+replay, concurrency and secret-safe projections. The root has no endpoint.
+Liveness proves the host responds, not database readiness.
 Configuration conventions and build/format commands are in the root README.
 
 ## Modular MVP

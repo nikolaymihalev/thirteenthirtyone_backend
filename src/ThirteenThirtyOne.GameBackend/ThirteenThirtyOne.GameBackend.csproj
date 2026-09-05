@@ -4,4 +4,7 @@
     <ProjectReference Include="../ThirteenThirtyOne.Infrastructure/ThirteenThirtyOne.Infrastructure.csproj" />
     <ProjectReference Include="../ThirteenThirtyOne.Protocol/ThirteenThirtyOne.Protocol.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
 </Project>

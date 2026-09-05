@@ -94,6 +94,19 @@ public sealed class DependencyTests
             reference => forbidden.Any(prefix => reference.Name!.StartsWith(prefix, StringComparison.Ordinal)));
     }
 
+    [Theory]
+    [InlineData("Game.Domain")]
+    [InlineData("Game.Engine")]
+    public void GameplayCoreDoesNotReadExternalStateOrScheduleWork(string layer)
+    {
+        var result = Types.InAssembly(Assembly.Load($"ThirteenThirtyOne.{layer}")).ShouldNot()
+            .HaveDependencyOnAny("System.DateTime", "System.DateTimeOffset", "System.Random",
+                "System.Environment", "System.IO", "System.Net", "System.Threading",
+                "System.Diagnostics.Stopwatch", "System.Security.Cryptography.RandomNumberGenerator")
+            .GetResult();
+        Assert.True(result.IsSuccessful, $"{layer} reads nondeterministic state or schedules work.");
+    }
+
     private static string FindRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

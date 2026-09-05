@@ -4,18 +4,18 @@ These documents are normative inputs for implementation.
 
 Authority order:
 
-1. `source-of-truth/01-official-rules.*`
+1. `source-of-truth/13-31_Rules.md`
    - Upstream source of truth for original tabletop mechanics.
 
-2. `source-of-truth/02-digital-game-rules-v1.1.*`
+2. `source-of-truth/13-31_Digital_Game_Rules_Specification.md`
    - APPROVED / LOCKED — Production Gameplay Rules Contract.
    - Authoritative for all digital gameplay behavior.
 
-3. `source-of-truth/03-multiplayer-product-rules-v1.1.*`
+3. `source-of-truth/13-31_Multiplayer_Product_and_Match_Rules_Specification.md`
    - APPROVED / LOCKED — Multiplayer Product Contract.
    - Authoritative for matchmaking, timers, reconnect, AFK, forfeit, etc.
 
-4. `source-of-truth/04-technical-architecture-v1.1.*`
+4. `source-of-truth/13-31_Multiplayer_Architecture.md`
    - APPROVED / LOCKED — Production MVP Architecture Contract.
    - Authoritative for technical implementation constraints.
 
